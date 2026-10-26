@@ -40,13 +40,13 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
     <h1>📝 Ramais da Empresa</h1>
     <p>Painel sincronizado em tempo real (Supabase)</p>
   </div>
-  <button class="add" onclick="novoRamal()">＋ Novo Ramal</button>
+  <button class="add" onclick="window.novoRamal()">＋ Novo Ramal</button>
 </header>
 
 <div class="wrap">
   <div class="search">
-    <input id="busca" placeholder="🔎 Pesquisar nome, ramal ou setor..." oninput="render()">
-    <select id="setorFiltro" onchange="render()"><option value="">Todos os setores</option></select>
+    <input id="busca" placeholder="🔎 Pesquisar nome, ramal ou setor..." oninput="window.render()">
+    <select id="setorFiltro" onchange="window.render()"><option value="">Todos os setores</option></select>
   </div>
 
   <div class="info">
@@ -69,7 +69,7 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
       <div class="field"><label>Cargo</label><input id="cargo" placeholder="Ex.: Técnico de Informática"></div>
       <div class="field"><label>Local / Sala</label><input id="local" placeholder="Ex.: Sala 03"></div>
       <div class="foot">
-        <button type="button" class="cancel" onclick="fechar()">Cancelar</button>
+        <button type="button" class="cancel" onclick="window.fechar()">Cancelar</button>
         <button class="save">Salvar</button>
       </div>
     </form>
@@ -77,12 +77,12 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
 </div>
 
 <script>
-  // 🔑 Substitua com as suas credenciais do projeto Supabase (Project Settings > API)
-  const SUPABASE_URL = 'SUA_URL_DO_SUPABASE';
-  const SUPABASE_ANON_KEY = 'SUA_CHAVE_ANON';
+  // Configuração correta e única das credenciais
+  const SUPABASE_URL = 'https://jvshwpvmacqaqhulcpnv.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_I8BwFcJOahV0UFT2sLqbeg_Zx0v3tum';
 
-	const SUPABASE_URL = 'https://jvshwpvmacqaqhulcpnv.supabase.co';
-	const SUPABASE_ANON_KEY = 'sb_publishable_I8BwFcJOahV0UFT2sLqbeg_Zx0v3tum';
+  const { createClient } = supabase;
+  const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let ramais = [];
 
@@ -93,7 +93,7 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
       return;
     }
     ramais = data || [];
-    render();
+    window.render();
   }
 
   // Sincronização em tempo real via WebSocket do Supabase
@@ -115,7 +115,7 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
     s.value=setores.includes(atual)?atual:"";
   }
 
-  function render(){
+  window.render = function(){
     atualizarFiltro();
     const q=document.getElementById("busca").value.toLowerCase();
     const f=document.getElementById("setorFiltro").value;
@@ -127,27 +127,27 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
     const el=document.getElementById("lista");
     el.innerHTML=lista.length?lista.map(x=>`
     <div class="card">
-      <button class="star" onclick="favorito(${x.id})">${x.fav?"⭐":"☆"}</button>
+      <button class="star" onclick="window.favorito(${x.id})">${x.fav?"⭐":"☆"}</button>
       <span class="tag">${esc(x.setor)}</span>
       <div class="name">${esc(x.nome)}</div>
       <div class="role">${esc(x.cargo||"Cargo não informado")}</div>
       <div class="number">☎ ${esc(x.ramal)}</div>
       ${x.local?`<div class="loc">📍 ${esc(x.local)}</div>`:""}
       <div class="actions">
-        <button class="copy" onclick="copiar('${String(x.ramal).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}')">Copiar</button>
-        <button class="edit" onclick="editar(${x.id})">Editar</button>
-        <button class="del" onclick="excluir(${x.id})">Excluir</button>
+        <button class="copy" onclick="window.copiar('${String(x.ramal).replace(/\\/g,"\\\\").replace(/'/g,"\\'")}')">Copiar</button>
+        <button class="edit" onclick="window.editar(${x.id})">Editar</button>
+        <button class="del" onclick="window.excluir(${x.id})">Excluir</button>
       </div>
     </div>`).join(""):'<div class="empty"><div style="font-size:40px">🔎</div><h3>Nenhum ramal encontrado</h3><p>Cadastre um novo ramal ou altere a pesquisa.</p></div>';
   }
 
-  function novoRamal(){
+  window.novoRamal = function(){
     document.getElementById("form").reset();document.getElementById("id").value="";
     document.getElementById("titulo").textContent="Novo Ramal";
     document.getElementById("modal").classList.add("show");document.getElementById("nome").focus();
   }
 
-  function editar(id){
+  window.editar = function(id){
     const x=ramais.find(r=>r.id===id);if(!x)return;
     document.getElementById("id").value=x.id;document.getElementById("nome").value=x.nome;
     document.getElementById("ramal").value=x.ramal;document.getElementById("setor").value=x.setor;
@@ -155,7 +155,7 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
     document.getElementById("titulo").textContent="Editar Ramal";document.getElementById("modal").classList.add("show");
   }
 
-  function fechar(){document.getElementById("modal").classList.remove("show")}
+  window.fechar = function(){document.getElementById("modal").classList.remove("show")}
 
   document.getElementById("form").onsubmit = async e => {
     e.preventDefault();
@@ -173,11 +173,11 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
     } else {
       await _supabase.from('ramais').insert([dados]);
     }
-    fechar();
+    window.fechar();
     carregarRamais();
   };
 
-  async function excluir(id){
+  window.excluir = async function(id){
     const x=ramais.find(r=>r.id===id);if(!x)return;
     if(confirm(`Excluir o ramal ${x.ramal} de ${x.nome}?`)){
       await _supabase.from('ramais').delete().eq('id', id);
@@ -185,7 +185,7 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
     }
   }
 
-  async function favorito(id){
+  window.favorito = async function(id){
     const x=ramais.find(r=>r.id===id);
     if(x){
       await _supabase.from('ramais').update({ fav: !x.fav }).eq('id', id);
@@ -193,13 +193,13 @@ button{cursor:pointer;border:0;border-radius:8px;padding:10px 14px;font-weight:b
     }
   }
 
-  function copiar(v){
+  window.copiar = function(v){
     if(navigator.clipboard) navigator.clipboard.writeText(v).then(()=>alert("Ramal "+v+" copiado!"));
     else alert("Ramal: "+v);
   }
 
-  document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")fechar()};
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")fechar()});
+  document.getElementById("modal").onclick=e=>{if(e.target.id==="modal")window.fechar()};
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")window.fechar()});
 </script>
 </body>
 </html>
